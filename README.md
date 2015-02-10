@@ -1,4 +1,4 @@
-# ruby_simple_delegage
+# ruby_simple_delegate
 A warrior life
 
 This is a sample of use with SimpleDelegate method. In this sample, I don't use the
