@@ -1,10 +1,13 @@
-# ruby_simple_delegate
-A warrior life
 
-This is a sample of use with SimpleDelegate method. In this sample, I don't use the
-simplest way of always extend object, but make little stuff around to enable / disable effects.
+A life of Warrior
+-----------------
 
-Always with delegators, but with a little butter :)
+Exemple d'utilisation de différentes techniques pour organiser des objets sous
+Ruby. L'objectif est d'avoir un mini-jeu textuel qui met en pratiques les
+principes suivants : Mixins, Delegation (Decorators / Facade), Interfaces.
 
-Ruby 2.0
-RSpec 3
+Nous aurons au final un jeu dans lequel le code est organisé à l'image du monde
+qui est dans le jeu.
+
+Technologies : Ruby2 / RSpec3
+
