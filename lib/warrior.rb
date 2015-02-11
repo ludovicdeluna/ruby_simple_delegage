@@ -1,7 +1,7 @@
 module Warbuck
   require 'delegate'
 
-  class Warrior
+  class Warrior < Character
 
     attr_reader :stats_attack, :effects, :name, :stats_pv
     ACTIONS = %w|hit drink left killme|
@@ -10,22 +10,26 @@ module Warbuck
       @stats_attack = GAME_SETTINGS[:warrior][:attack] || 18
       @stats_pv = GAME_SETTINGS[:warrior][:pv] || 100
       @effects = []
+      @duration = {}
       @name = name
-      printf "A new warior is born : %s \n", @name
+      printf "A new warrior is born : %s \n", @name
     end
 
-    def is_doing(action)
-      options = action.gsub(/\s+/m, ' ').strip.split(" ")
-      todo = options.slice! 0
-      return action until ACTIONS.include? todo
+    def is_doing(something)
+      action, options = Tools.split_whatsnow(something)
+      return something until ACTIONS.include? action
 
-      if options.size > 0
-        self.public_send "do_#{todo}", options
+      if options.empty?
+        self.public_send("do_#{action}") rescue learn_this action
       else
-        self.public_send "do_#{todo}"
+        self.public_send("do_#{action}", *options) rescue learn_this action
       end
 
       nil
+    end
+
+    def learn_this(action)
+      printf "Woooo... Please, learn to use %s\n", action
     end
 
     def do_killme
@@ -33,46 +37,57 @@ module Warbuck
       @stats_pv = 0
     end
 
-    def do_hit
-      puts 'You hit with your sword'
-      return @stats_attack
+    def do_hit(ennemy=nil)
+      if ennemy == 'me'
+        puts 'You raise your sword and...'
+        do_killme
+      else
+        puts 'You hit with your sword'
+        return @stats_attack
+      end
     end
 
     def do_drink(potion=nil)
-      potion &&= potion.first
       until potion
         puts "You want to drink but you can't remember his name... Shit !"
         return false
       end
-      potion_name = potion
-      potion = Module.const_get(potion) rescue nil
-      if potion
-        puts 'You drink a potion'
-        self.extend(potion)
-        printf "Woaw, it's a potion called %s\n", potion
-        public_send( method_with "Drink" + potion.to_s )
+      potion_object = Tools.camelcase_to_module(potion)
+      if potion_object
+        printf "You drink a potion : %s\n", potion
+        self.extend(potion_object)
+        public_send Tools.camelcase_to_method('Drink' + potion)
         true
       else
-        printf "You haven't this %s in your bag... Shame on you !\n", potion_name
+        printf "You haven't this %s in your bag... Shame on you !\n", potion
       end
     end
 
     def do_left(potion=nil)
-      potion &&= potion.first
       until potion
         puts "You think you can left a potion effect... But what was his name ?"
         return false
       end
-      potion_name = potion
-      potion = Module.const_get(potion) rescue nil
-      if potion
+      potion_object = Tools.camelcase_to_module(potion)
+      if potion_object
         puts 'You will left a potion effect'
-        method_with( "Left" + potion.to_s ).tap do |left_potion|
+        public_send Tools.to_underscore("Left" + potion.to_s)
+        Tools.to_underscore( "Left" + potion.to_s ).tap do |left_potion|
           public_send left_potion.to_sym if respond_to? left_potion.to_sym
         end
         true
       else
         printf "You think you have already drinked a %s... But not", potion_name
+      end
+    end
+
+    def decrease_effects
+      @effects.each do |effect|
+        if @duration[effect.to_sym] == 0
+          do_left ['PotionForce']
+        else
+          @duration[effect.to_sym] -= 1
+        end
       end
     end
 
@@ -84,10 +99,6 @@ module Warbuck
 
     def list_actions
       ACTIONS
-    end
-
-    def method_with(name)
-      name.gsub(/([^\^])([A-Z])/,'\1_\2').downcase.to_sym
     end
 
   end

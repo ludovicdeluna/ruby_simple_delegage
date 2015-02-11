@@ -64,6 +64,7 @@ module Warbuck
     end
 
     def turn
+      @hero.decrease_effects
       scene
       whatsnow
     end

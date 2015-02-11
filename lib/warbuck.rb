@@ -1,5 +1,6 @@
 module Warbuck
   require 'yaml'
+  require_relative 'tools'
 
   GAME_PATH     = File.expand_path( '..', File.dirname(__FILE__) )
   GAME_SETTINGS = YAML.load_file(File.join GAME_PATH, 'config.yml') rescue nil
@@ -11,10 +12,18 @@ module Warbuck
   end
 
   def self.load
-    Dir[ File.join Warbuck::GAME_PATH, 'lib', '**', '*.rb' ]
-    .each { |file|
-      require file
-    } if GAME_SETTINGS
+    extentions = []
+    if GAME_SETTINGS
+      Dir[ File.join Warbuck::GAME_PATH, 'lib', '**', '*.rb' ]
+      .each { |file|
+        autoload Tools.path_to_constant(file), file
+        extentions << file
+      }
+
+      extentions.each do |file|
+        require file
+      end
+    end
   end
 
 end
