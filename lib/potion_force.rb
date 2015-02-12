@@ -1,6 +1,10 @@
 module Warbuck
   module PotionForce
 
+    def self.hello
+      puts 'ok'
+    end
+
     def drink_potion_force
       puts Tools.to_underscore 'PotionForce'
       potion = Tools.to_underscore 'PotionForce'

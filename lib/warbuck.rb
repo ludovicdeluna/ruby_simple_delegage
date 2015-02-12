@@ -12,17 +12,11 @@ module Warbuck
   end
 
   def self.load
-    extentions = []
     if GAME_SETTINGS
       Dir[ File.join Warbuck::GAME_PATH, 'lib', '**', '*.rb' ]
       .each { |file|
         autoload Tools.path_to_constant(file), file
-        extentions << file
       }
-
-      extentions.each do |file|
-        require file
-      end
     end
   end
 

@@ -1,12 +1,11 @@
 module Warbuck
   class Game
 
-    COMMANDS = %w|quit list scene stats|
+    COMMANDS = %w|stats scene list quit|
 
     def initialize(hero=nil)
       clear
       @hero = hero || Warrior.new
-      @turn_playing = 0
       start
     end
 
@@ -24,7 +23,7 @@ module Warbuck
     end
 
     def console_list
-      puts @hero.list_actions
+      puts @hero.class::ACTIONS
       puts COMMANDS
     end
 
@@ -34,11 +33,11 @@ module Warbuck
     end
 
     def console_stats
-      @hero.stats
+      @hero.show_stats
     end
 
     def gameover?
-      @gameover ||= 'Sorry, your are dead' if @hero.stats_pv == 0
+      @gameover ||= 'Sorry, your are dead' if @hero.stats.pv <= 0
       @gameover ||= 'You exit the game' if @turn_playing == 0
       @gameover ? true : false
     end
@@ -56,6 +55,7 @@ module Warbuck
     end
 
     def start
+      @turn_playing = 0
       begin
         @turn_playing += 1
         turn

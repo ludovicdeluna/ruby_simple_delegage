@@ -2,7 +2,7 @@ module Warbuck
   module Tools
 
     def self.path_to_constant(path)
-      File.basename(path, '.rb').capitalize.to_sym
+      to_camelcase(File.basename path, '.rb').to_sym
     end
 
     def self.to_underscore(name)
@@ -16,6 +16,7 @@ module Warbuck
     def self.split_whatsnow(whatsnow)
       # Reduce multiple space and convert to array (like %w||)
       options = whatsnow.gsub(/\s+/m, ' ').strip.split(" ")
+      return [options.slice!(0), options]
       if options.count > 2
         [options.slice!(0), options]
       else
