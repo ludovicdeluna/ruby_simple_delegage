@@ -1,9 +1,5 @@
 module Warbuck
-  class Game
-
-    COMMANDS = %w|stats scene list quit|
-
-    include Commands
+  class Game < Commandable
 
     def initialize(hero=nil)
       clear
@@ -72,6 +68,8 @@ module Warbuck
         command = @hero.is_doing something
       end while command && need_repeat(command)
     end
+
+    set_commands # Read all do_* methods and create command for each
 
   end
 end

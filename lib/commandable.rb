@@ -1,5 +1,5 @@
 module Warbuck
-  module Commands
+  class Commandable
 
     def can_do?(action)
       self.class::COMMANDS.include? action
@@ -38,7 +38,22 @@ module Warbuck
       return [options.slice!(0), options]
     end
 
+    def self.set_commands
+      commands = methods_to_commands
+      commands = commands + superclass::COMMANDS if parent_has_commands?
+      const_set 'COMMANDS', commands if commands
+    end
 
+    private
+
+    def self.methods_to_commands
+      instance_methods.grep(/^do_/).map(&:to_s).map {|action|
+        action.sub(/^do_/, '')
+      }
+    end
+
+    def self.parent_has_commands?
+      defined? superclass::COMMANDS
+    end
   end
 end
-
