@@ -3,7 +3,7 @@ module Warbuck
 
   class Warrior < Character
 
-    ACTIONS = %w|hit drink left killme| + Character::ACTIONS
+    set_commands %w|hit drink left killme|
 
     def initialize(name='Conan')
       super
@@ -11,7 +11,7 @@ module Warbuck
     end
 
     def do_killme
-      puts 'You kill yourself'
+      printf "%s was just killed by himself\n", self.name
       @stats.pv = 0
     end
 
@@ -21,7 +21,6 @@ module Warbuck
         do_killme
       else
         puts 'You hit with your sword'
-        return @stats.attack
       end
     end
 

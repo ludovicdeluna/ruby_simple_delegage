@@ -3,6 +3,8 @@ module Warbuck
 
     COMMANDS = %w|stats scene list quit|
 
+    include Commands
+
     def initialize(hero=nil)
       clear
       @hero = hero || Warrior.new
@@ -14,45 +16,41 @@ module Warbuck
       STDOUT.flush
     end
 
-    def console_do(action)
-      if COMMANDS.include? action
-        public_send "console_#{action.downcase}".to_sym
-      else
-        puts "I don't know what you mean !"
-      end
-    end
-
-    def console_list
-      puts @hero.class::ACTIONS
+    def do_list
+      puts @hero.class::COMMANDS
       puts COMMANDS
     end
 
-    def console_quit
+    def do_quit
       @turn_playing = 0
-      false
+      :quit
     end
 
-    def console_stats
+    def do_stats
       @hero.show_stats
     end
 
     def gameover?
-      @gameover ||= 'Sorry, your are dead' if @hero.stats.pv <= 0
-      @gameover ||= 'You exit the game' if @turn_playing == 0
+      @gameover ||= 'Sorry, your are dead' unless @hero.stats.pv > 0
+      @gameover ||= 'You exit the game' unless @turn_playing > 0
       @gameover ? true : false
+    end
+
+    def need_repeat(command)
+      case does(command)
+      when :unknown then
+        puts "I don't know what you mean !"
+      when :quit then
+        return false
+      end
+      true
     end
 
     def scene
       printf "Current turn : %s \n", @turn_playing
       puts 'You are in a castle'
     end
-
-    alias :console_scene :scene
-
-    def something
-      print "What's now? (do something or list) "
-      gets.chomp
-    end
+    alias :do_scene :scene
 
     def start
       @turn_playing = 0
@@ -70,14 +68,9 @@ module Warbuck
     end
 
     def whatsnow
-      loop do
+      begin
         command = @hero.is_doing something
-        if command
-          break if (console_do command) == false
-        else
-          break
-        end
-      end
+      end while command && need_repeat(command)
     end
 
   end

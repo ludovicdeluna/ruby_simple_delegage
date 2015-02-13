@@ -1,9 +1,12 @@
 module Warbuck
   class Character
+
     attr_reader :stats, :name
 
     ALL_STATS = { attack:0, pv:0, effects:[], duration:{} }
-    ACTIONS = []
+    COMMANDS = []
+
+    include Commands
 
     def initialize(name)
       init_stats
@@ -11,17 +14,9 @@ module Warbuck
       @name = name
     end
 
-    def is_doing(something)
-      action, options = Tools.split_whatsnow(something)
-      return something until self.class::ACTIONS.include? action
-
-      begin
-        self.public_send *( ["do_#{action}"] + options )
-      rescue ArgumentError
-        learn_this action
-      end
-
-      return nil
+    def self.set_commands(commands)
+      # Love metaprogramming
+      send :const_set, *['COMMANDS', commands+COMMANDS]
     end
 
     def show_stats
@@ -39,9 +34,6 @@ module Warbuck
 
     private
 
-    def learn_this(action)
-      printf "Woooo... Please, learn to use %s\n", action
-    end
 
     def init_stats
       @stats = Struct.new(*ALL_STATS.keys).new.tap do |stats|

@@ -13,17 +13,6 @@ module Warbuck
       name.split("_").map(&:capitalize).join
     end
 
-    def self.split_whatsnow(whatsnow)
-      # Reduce multiple space and convert to array (like %w||)
-      options = whatsnow.gsub(/\s+/m, ' ').strip.split(" ")
-      return [options.slice!(0), options]
-      if options.count > 2
-        [options.slice!(0), options]
-      else
-        [options.slice!(0), options.join]
-      end
-    end
-
     def self.root_ns
       self.to_s.split('::').first
     end
